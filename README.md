@@ -56,4 +56,4 @@ The report includes:
 
 ## License
 
-MIT
+Open
