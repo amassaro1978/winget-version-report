@@ -132,12 +132,10 @@ foreach ($id in $AppIDs) {
                 $url = ($s -replace '^Installer Url:\s*','').Trim()
                 # Detect installer type from URL (check MSIX before MSI to avoid false match)
                 if ($url -match '\.(msix|msixbundle|appx|appxbundle)(\?|$)') {
-                    if (-not $downloadUrl -or $downloadUrl -eq '') {
-                        $downloadUrl = $url
-                    }
+                    $downloadUrl = $url
                     $installerType = "MSIX"
                 }
-                elseif ($url -match '\.msi(\?|$)') {
+                elseif ($url -match '\.msi(\?|$)' -and $installerType -ne 'MSIX') {
                     $downloadUrl = $url
                     $installerType = "MSI"
                 }
