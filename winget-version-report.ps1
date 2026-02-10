@@ -131,7 +131,7 @@ foreach ($id in $AppIDs) {
             elseif ($s -like "Installer Url:*") {
                 $url = ($s -replace '^Installer Url:\s*','').Trim()
                 # Detect installer type from URL (check MSIX before MSI to avoid false match)
-                if ($url -match '\.msix(bundle)?(\?|$)') {
+                if ($url -match '\.(msix|msixbundle|appx|appxbundle)(\?|$)') {
                     if (-not $downloadUrl -or $downloadUrl -eq '') {
                         $downloadUrl = $url
                     }
@@ -149,8 +149,12 @@ foreach ($id in $AppIDs) {
                 }
             }
             elseif ($s -like "Installer Type:*") {
-                $iType = ($s -replace '^Installer Type:\s*','').Trim()
-                if (-not $installerType -or $installerType -eq 'Other') { $installerType = $iType.ToUpper() }
+                $iType = ($s -replace '^Installer Type:\s*','').Trim().ToUpper()
+                # MSIX type from winget always wins (URL might show .msi for msix packages)
+                if ($iType -eq 'MSIX' -or $iType -eq 'APPX') {
+                    $installerType = "MSIX"
+                }
+                elseif (-not $installerType -or $installerType -eq 'Other') { $installerType = $iType }
             }
             elseif ($s -like "Installer SHA256:*" -or $s -like "SHA256:*") {
                 if (-not $sha256) {
