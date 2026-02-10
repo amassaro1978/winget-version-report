@@ -139,12 +139,13 @@ foreach ($id in $AppIDs) {
                     $downloadUrl = $url
                     if ($url -match '\.exe') { $installerType = "EXE" }
                     elseif ($url -match '\.msix') { $installerType = "MSIX" }
+                    elseif ($url -match '\.zip') { $installerType = "ZIP" }
                     else { $installerType = "Other" }
                 }
             }
             elseif ($s -like "Installer Type:*") {
                 $iType = ($s -replace '^Installer Type:\s*','').Trim()
-                if (-not $installerType) { $installerType = $iType.ToUpper() }
+                if (-not $installerType -or $installerType -eq 'Other') { $installerType = $iType.ToUpper() }
             }
             elseif ($s -like "Installer SHA256:*" -or $s -like "SHA256:*") {
                 if (-not $sha256) {
@@ -285,7 +286,7 @@ foreach ($r in $results) {
     if ($r.DownloadUrl) {
         $badge = $r.InstallerType
         if (-not $badge) { $badge = "DL" }
-        $badgeClass = switch ($r.InstallerType) { 'MSI' { 'badge-msi' } 'MSP' { 'badge-msp' } default { 'badge-exe' } }
+        $badgeClass = switch ($r.InstallerType) { 'MSI' { 'badge-msi' } 'MSP' { 'badge-msp' } 'ZIP' { 'badge-zip' } 'MSIX' { 'badge-msix' } default { 'badge-exe' } }
         $downloadLink = "<a href='$($r.DownloadUrl)' target='_blank' class='dl-badge $badgeClass'>&#11015; $badge</a>"
     } else {
         $downloadLink = '<span class="na">N/A</span>'
@@ -422,6 +423,16 @@ $html = @"
         color: #7dd3fc;
     }
     .badge-msp:hover { background: #1e4a7f; }
+    .badge-zip {
+        background: #5b21b6;
+        color: #c4b5fd;
+    }
+    .badge-zip:hover { background: #6d28d9; }
+    .badge-msix {
+        background: #831843;
+        color: #f9a8d4;
+    }
+    .badge-msix:hover { background: #9d174d; }
     .footer {
         background: #1e293b;
         border-radius: 0 0 16px 16px;
