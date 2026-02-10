@@ -130,15 +130,20 @@ foreach ($id in $AppIDs) {
             }
             elseif ($s -like "Installer Url:*") {
                 $url = ($s -replace '^Installer Url:\s*','').Trim()
-                # Prefer MSI over EXE
-                if ($url -match '\.msi') {
+                # Detect installer type from URL (check MSIX before MSI to avoid false match)
+                if ($url -match '\.msix(bundle)?(\?|$)') {
+                    if (-not $downloadUrl -or $downloadUrl -eq '') {
+                        $downloadUrl = $url
+                    }
+                    $installerType = "MSIX"
+                }
+                elseif ($url -match '\.msi(\?|$)') {
                     $downloadUrl = $url
                     $installerType = "MSI"
                 }
                 elseif (-not $downloadUrl -or $downloadUrl -eq '') {
                     $downloadUrl = $url
                     if ($url -match '\.exe') { $installerType = "EXE" }
-                    elseif ($url -match '\.msix') { $installerType = "MSIX" }
                     elseif ($url -match '\.zip') { $installerType = "ZIP" }
                     else { $installerType = "Other" }
                 }
